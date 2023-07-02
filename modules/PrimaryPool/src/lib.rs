@@ -1,10 +1,13 @@
 mod abi;
 mod pb;
+#[path = "kv_out.rs"]
+mod kv;
 
 use hex_literal::hex;
-use pb::uniswap::{Pool, Pools, Subscription, Subscriptions};
+use pb::verified::{Pool, Pools, Subscription, Subscriptions};
 use substreams::{log, Hex};
 use substreams_ethereum::pb::eth::v2 as eth;
+use substreams_sink_kv::pb::kv::KvOperations;
 
 const FACTORY_CONTRACT: [u8; 20] = hex!("0x4823be69546f9e1Ab8a87f315108c19dDC8E48b4");
 
@@ -48,4 +51,21 @@ fn map_subscriptions(Pools) {
                 .collect(),
         })
     }
+}
+
+#[substreams::handlers::map]
+pub fn kv_out(
+    deltas: store::Deltas<DeltaProto<BlockMeta>>,
+) -> Result<KvOperations, Error> {
+
+    // Create an empty 'KvOperations' structure
+    let mut kv_ops: KvOperations = Default::default();
+
+    // Call a function that will push key-value operations from the deltas
+    kv::process_deltas(&mut kv_ops, deltas);
+
+    // Here, we could add more operations to the kv_ops
+    // ...
+
+    Ok(kv_ops)
 }

@@ -16,7 +16,7 @@ Full documentation for installing, running and working with Substreams is availa
 
 The modules in this repo stream subscription/pricing data from primary issue pools, and trade/pricing data from secondary issue pools.
 
-There are two modules - PrimaryPool and SecondaryPool. And the consumers are for Kafka. 
+There are two modules - PrimaryPool and SecondaryPool. The data mapped by substreams is persisted in key/value stores and can be served using gRPC. More on the [client interfaces here](https://github.com/streamingfast/substreams-sink-kv/tree/develop/examples/generic-service) with an example.
 
 The Verified substreams are for Ethereum endpoints for Mainnet, Polygon, BNB (for production) and Goerli (for testing). 
 
