@@ -1,0 +1,33 @@
+specVersion: v0.1.0
+package:
+  name: "substreams_primary_issues"
+  description: Verified Substreams of orders in Primary pool
+  version: v0.1.0
+
+protobuf:
+  files:
+    - primary.proto
+  importPaths:
+    - ./proto
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ./target/wasm32-unknown-unknown/release/substreams_primary.wasm
+
+modules:
+  - name: map_pools
+    kind: map
+    initialBlock: 8586768
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:verified.primary.v1.Pools
+
+  - name: map_subscriptions
+    kind: map
+    initialBlock: 8586768
+    inputs:
+      - map: map_pools
+    output:
+      type: proto:verified.primary.v1.Subscriptions
