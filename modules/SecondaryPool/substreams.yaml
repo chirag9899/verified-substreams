@@ -1,0 +1,33 @@
+specVersion: v0.1.0
+package:
+  name: "substreams_secondary_issues"
+  description: Verified Substreams of trades in Secondary pool
+  version: v0.1.0
+
+protobuf:
+  files:
+    - secondary.proto
+  importPaths:
+    - ./proto
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ./target/wasm32-unknown-unknown/release/substreams_secondary.wasm
+
+modules:
+  - name: map_pools
+    kind: map
+    initialBlock: 8586768
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:verified.secondary.v1.Pools
+
+  - name: map_trades
+    kind: map
+    initialBlock: 8586768
+    inputs:
+      - map: map_pools
+    output:
+      type: proto:verified.secondary.v1.Trades

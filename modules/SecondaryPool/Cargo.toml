@@ -1,7 +1,7 @@
 [package]
-name = "substreams-primary-pool"
+name = "substreams-secondary-pool"
 version = "0.1.0"
-description = "Substreams for pricing and subscriptions data from the Verified Network"
+description = "Substreams for pricing and trading data from the Verified Network"
 edition = "2023"
 authors = ["Kallol Borah"]
 repository = "https://github.com/verified-network/verified-substreams"
