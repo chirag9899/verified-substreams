@@ -37,5 +37,6 @@ modules:
     inputs:
       - store: store_block_meta_end
         mode: deltas
+      - map: map_subscriptions
     output:
       type: proto:sf.substreams.sink.kv.v1.KVOperations

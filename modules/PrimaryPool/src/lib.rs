@@ -30,7 +30,7 @@ fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
 }
 
 #[substreams::handlers::map]
-fn map_subscriptions(Pools) {
+fn map_subscriptions(pool_created:Pools) {
     log::info!("Detecting subscriptions from Primary pools");
     for Pool in Pools.Pool {
         Ok(Subscriptions {
@@ -55,6 +55,7 @@ fn map_subscriptions(Pools) {
 
 #[substreams::handlers::map]
 pub fn kv_out(
+    order_created: Subscriptions,
     deltas: store::Deltas<DeltaProto<BlockMeta>>,
 ) -> Result<KvOperations, Error> {
 
@@ -65,7 +66,12 @@ pub fn kv_out(
     kv::process_deltas(&mut kv_ops, deltas);
 
     // Here, we could add more operations to the kv_ops
-    // ...
+    kv_ops.push_new(assetIn, Subscription.assetIn_address);
+    kv_ops.push_new(assetOut, Subscription.assetOut_address);
+    kv_ops.push_new(subscription, Subscription.subscription_amount);
+    kv_ops.push_new(investor, Subscription.investor_address);
+    kv_ops.push_new(price, Subscription.price);
+    kv_ops.push_new(executionDate, Subscription.execution_date);
 
     Ok(kv_ops)
 }

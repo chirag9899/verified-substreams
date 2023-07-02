@@ -55,6 +55,7 @@ fn map_subscriptions(Pools) {
 
 #[substreams::handlers::map]
 pub fn kv_out(
+    trade_reported: Trades,
     deltas: store::Deltas<DeltaProto<BlockMeta>>,
 ) -> Result<KvOperations, Error> {
 
@@ -65,7 +66,12 @@ pub fn kv_out(
     kv::process_deltas(&mut kv_ops, deltas);
 
     // Here, we could add more operations to the kv_ops
-    // ...
+    kv_ops.push_new(security, Trades.security_address);
+    kv_ops.push_new(orderType, Trades.order_type);
+    kv_ops.push_new(price, Trades.price);
+    kv_ops.push_new(currency, Trades.currency_address);
+    kv_ops.push_new(amount, Trades.traded_amount);
+    kv_ops.push_new(executionDate, Trades.execution_date);
 
     Ok(kv_ops)
 }
