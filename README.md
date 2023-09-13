@@ -1,6 +1,10 @@
-# Verified Substreams
+<a href="https://www.streamingfast.io/">
+	<img width="100%" src="https://github.com/streamingfast/substreams/blob/develop/docs/assets/substreams-banner.png" alt="StreamingFast Substreams Banner" />
+</a>
 
-## Introduction to Substreams
+# Substreams
+
+> Developer preview
 
 Substreams is a powerful blockchain indexing technology, developed for The Graph Network.
 
@@ -12,14 +16,13 @@ Substreams has all the benefits of StreamingFast Firehose, like low-cost caching
 
 Full documentation for installing, running and working with Substreams is available at: https://substreams.streamingfast.io.
 
-## Streaming orders and trade data from the Verified Network
+## Contributing
 
-The modules in this repo stream subscription/pricing data from primary issue pools, and trade/pricing data from secondary issue pools.
+**Please first refer to the general
+[StreamingFast contribution guide](https://github.com/streamingfast/streamingfast/blob/master/CONTRIBUTING.md)**,
+if you wish to contribute to this code base.
 
-There are two modules - PrimaryPool and SecondaryPool. The data mapped by substreams is persisted in key/value stores and can be served using gRPC. More on the [client interfaces here](https://github.com/streamingfast/substreams-sink-kv/tree/develop/examples/generic-service) with an example.
-
-The Verified substreams are for Ethereum endpoints for Mainnet, Polygon, BNB (for production) and Goerli (for testing). 
 
 ## License
 
-[BUSL 1.1](LICENSE)
+[Apache 2.0](LICENSE)
