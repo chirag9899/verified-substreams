@@ -25,6 +25,9 @@ To generate rust code to connect to protobuf, run the following command in the m
 To build the rust code, run the following command in the module folder
 ```cargo build --target wasm32-unknown-unknown --release```
 
+To package the modules, run the following command in the module folder
+```substreams run -e mainnet.eth.streamingfast.io:443 substreams.yaml map_block --start-block 10000001 --stop-block +1```
+
 ## License
 
 [BUSL 1.1](LICENSE)
