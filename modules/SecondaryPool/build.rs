@@ -6,7 +6,7 @@ fn main() -> Result<(), anyhow::Error> {
         .generate()?
         .write_to_file("src/abi/factory.rs")?;
 
-    Ok(()),
+    Ok(());
 
     Abigen::new("SecondaryIssuePool", "abi/SecondaryIssuePool.json")?
         .generate()?

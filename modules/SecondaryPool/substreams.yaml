@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
   name: "substreams_secondary_issues"
-  description: Verified Substreams of trades in Secondary pool
+  # description: Verified Substreams of trades in Secondary pool
   version: v0.1.0
 
 protobuf:
@@ -16,6 +16,14 @@ binaries:
     file: ./target/wasm32-unknown-unknown/release/substreams_secondary.wasm
 
 modules:
+  - name: store_block_meta_end
+    kind: store
+    updatePolicy: set
+    initialBlock: 8586768
+    valueType: proto:eth.block_meta.v1.BlockMeta
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+
   - name: map_pools
     kind: map
     initialBlock: 8586768

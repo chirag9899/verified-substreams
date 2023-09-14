@@ -4,12 +4,13 @@ mod pb;
 mod kv;
 
 use hex_literal::hex;
-use pb::verified::{Pool, Pools, Trade, Trades};
+use pb::verified::primary::v1::{Pool, Pools, Trade, Trades};
 use substreams::{log, Hex};
 use substreams_ethereum::pb::eth::v2 as eth;
-use substreams_sink_kv::pb::kv::KvOperations;
+// use substreams_sink_kv::pb::kv::KvOperations;
+use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
-const FACTORY_CONTRACT: [u8; 20] = hex!("0xe3e79e4106327e6eAeFBD03C1fD3A4A531c59b10");
+const FACTORY_CONTRACT: [u8; 20] = hex!("e3e79e4106327e6eAeFBD03C1fD3A4A531c59b10");
 
 substreams_ethereum::init!();
 
@@ -22,15 +23,16 @@ fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
                 log::info!("PoolCreated event seen");
 
                 Pool {
-                    pool_address: Hex(pool_created.pool).to_string(),
+                    // pool_address: Hex(pool_created.pool).to_string(),
+                    pool_address: Hex(pool_created.pool).0,
                 }
             })
             .collect(),
     })
 }
 
-#[substreams::handlers::map]
-fn map_subscriptions(Pools) {
+// #[substreams::handlers::map]
+fn map_subscriptions(pool_created:Pools) {
     log::info!("Detecting trades from Secondary pools");
     for Pool in Pools.Pool {
         Ok(Trades {
@@ -49,11 +51,11 @@ fn map_subscriptions(Pools) {
                     }
                 })
                 .collect(),
-        })
+        });
     }
 }
 
-#[substreams::handlers::map]
+// #[substreams::handlers::map]
 pub fn kv_out(
     trade_reported: Trades,
     deltas: store::Deltas<DeltaProto<BlockMeta>>,
@@ -66,12 +68,12 @@ pub fn kv_out(
     kv::process_deltas(&mut kv_ops, deltas);
 
     // Here, we could add more operations to the kv_ops
-    kv_ops.push_new(security, Trades.security_address);
-    kv_ops.push_new(orderType, Trades.order_type);
-    kv_ops.push_new(price, Trades.price);
-    kv_ops.push_new(currency, Trades.currency_address);
-    kv_ops.push_new(amount, Trades.traded_amount);
-    kv_ops.push_new(executionDate, Trades.execution_date);
+    // kv_ops.push_new(security, Trades.security_address);
+    // kv_ops.push_new(orderType, Trades.order_type);
+    // kv_ops.push_new(price, Trades.price);
+    // kv_ops.push_new(currency, Trades.currency_address);
+    // kv_ops.push_new(amount, Trades.traded_amount);
+    // kv_ops.push_new(executionDate, Trades.execution_date);
 
     Ok(kv_ops)
 }
