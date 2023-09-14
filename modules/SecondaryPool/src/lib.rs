@@ -4,7 +4,7 @@ mod pb;
 mod kv;
 
 use hex_literal::hex;
-use pb::verified::primary::v1::{Pool, Pools, Trade, Trades};
+use pb::verified::secondary::v1::{Pool, Pools, Trade, Trades};
 use substreams::{log, Hex};
 use substreams_ethereum::pb::eth::v2 as eth;
 // use substreams_sink_kv::pb::kv::KvOperations;
