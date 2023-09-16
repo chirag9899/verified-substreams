@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "buf:generate": "buf generate ../proto/substreams/sink/kv/v1 && buf generate ./proto",
+    "buf:generate": "buf generate ../proto/substreams/sink/kv/v1 && buf generate ../../modules/PrimaryPool/proto && buf generate ../../modules/SecondaryPool/proto",
     "preview": "vite preview"
   },
   "dependencies": {

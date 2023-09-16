@@ -9,7 +9,8 @@ import {
 
 // Import service definition that you want to connect to.
 import { Kv } from "../gen/read_connectweb";
-import { BlockMeta } from "../gen/block_meta_pb";
+import { Subscription } from "../gen/primary_pb";
+import { Trade } from "../gen/secondary_pb";
 
 // The transport defines what type of endpoint we're hitting.
 // In our example we'll be communicating with a Connect endpoint.
@@ -30,7 +31,7 @@ function App() {
         }[]
     >([]);
     return <>
-        <h1>Example UI for substreams-eth-block-meta</h1>
+        <h1>Example UI for Primary and Secondary pool substreams</h1>
         <h2>Enter a key to get the value from the kv store (ex: month:last:201511)</h2>
         <ol>
             {messages.map((msg, index) => (
@@ -58,13 +59,13 @@ function App() {
                 });
                 let output: string;
                 try {
-                    const blkmeta = BlockMeta.fromBinary(response.value);
-                    output = JSON.stringify(blkmeta, (key, value) => {
+                    const subscription = Subscription.fromBinary(response.value);
+                    output = JSON.stringify(subscription, (key, value) => {
                         if (key === "hash") {
-                            return "0x" + bufferToHex(blkmeta.hash);
+                            return "0x" + bufferToHex(subscription.hash);
                         }
                         if (key === "parentHash") {
-                            return "0x" + bufferToHex(blkmeta.parentHash);
+                            return "0x" + bufferToHex(subscription.parentHash);
                         }
                         return value;
                     }, 2);
