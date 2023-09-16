@@ -1,15 +1,14 @@
 mod abi;
 mod pb;
-#[path = "kv_out.rs"]
-mod kv;
 
 use hex_literal::hex;
 use pb::verified::secondary::v1::{Pool, Pools, Trade, Trades};
-use substreams::{log, Hex};
+use substreams::{errors::Error, log, Hex};
 use substreams_ethereum::pb::eth::v2 as eth;
 // use substreams_sink_kv::pb::kv::KvOperations;
 use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
+use crate::pb::verified;
 const FACTORY_CONTRACT: [u8; 20] = hex!("e3e79e4106327e6eAeFBD03C1fD3A4A531c59b10");
 
 substreams_ethereum::init!();
@@ -32,40 +31,37 @@ fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
 }
 
 // #[substreams::handlers::map]
-fn map_subscriptions(pool_created:Pools) {
+fn map_subscriptions(
+    blk: eth::Block,
+    pool_created: Pools,
+) -> Result<verified::secondary::v1::Trades, substreams::errors::Error> {
     log::info!("Detecting trades from Secondary pools");
-    for Pool in Pools.Pool {
-        Ok(Trades {
-            trades: blk
-                .events::<abi::pool::events::Trades>(&[&Pool])
-                .map(|(trade_reported, _log)| {
-                    log::info!("TradeReport event seen");
-    
-                    Trade {
-                        security_address: trade_reported.security,
-                        order_type: trade_reported.orderType,
-                        price: trade_reported.price.low_u64(),
-                        currency_address: trade_reported.currency,
-                        traded_amount: trade_reported.amount.low_u64(),
-                        execution_date: trade_reported.executionDate,
-                    }
-                })
-                .collect(),
-        });
+    let mut all_trades = Vec::new();
+    for pool in pool_created.pools {
+        let trades_for_pool: Vec<_> = blk
+            .events::<abi::pool::events::Trades>(&[&pool.pool_address])
+            .map(|(trade_reported, _log)| {
+                log::info!("TradeReport event seen");
+
+                Trade {
+                    security_address: trade_reported.security,
+                    order_type: trade_reported.orderType,
+                    price: trade_reported.price.low_u64(),
+                    currency_address: trade_reported.currency,
+                    traded_amount: trade_reported.amount.low_u64(),
+                    execution_date: trade_reported.executionDate,
+                }
+            })
+            .collect();
+        all_trades.extend(trades_for_pool);
     }
+    Ok(verified::secondary::v1::Trades { trades: all_trades })
 }
 
 // #[substreams::handlers::map]
-pub fn kv_out(
-    trade_reported: Trades,
-    deltas: store::Deltas<DeltaProto<BlockMeta>>,
-) -> Result<KvOperations, Error> {
-
+pub fn kv_out(trade_reported: Trades) -> Result<KvOperations, Error> {
     // Create an empty 'KvOperations' structure
     let mut kv_ops: KvOperations = Default::default();
-
-    // Call a function that will push key-value operations from the deltas
-    kv::process_deltas(&mut kv_ops, deltas);
 
     // Here, we could add more operations to the kv_ops
     // kv_ops.push_new(security, Trades.security_address);

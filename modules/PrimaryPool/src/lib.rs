@@ -1,7 +1,7 @@
 mod abi;
-#[path = "kv_out.rs"]
-mod kv;
 mod pb;
+// #[path = "kv_out.rs"]
+// mod kv;
 
 // use std::error::Error;
 
@@ -13,7 +13,7 @@ use pb::{
         primary::v1::{Pool, Pools, Subscription, Subscriptions},
     },
 };
-use substreams::{log, store, store::DeltaProto, Hex};
+use substreams::{log, store, store::DeltaProto, Hex, errors::Error};
 use substreams_ethereum::pb::eth::v2 as eth;
 use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
@@ -77,18 +77,15 @@ fn map_subscriptions(
 
 // #[substreams::handlers::map]
 pub fn kv_out(
-    deltas: store::Deltas<DeltaProto<BlockMeta>>,
-    order_created:pb::verified::primary::v1::Subscription,
-    oe: abi::pool::events::Subscription
-) -> Result<KvOperations, substreams::errors::Error> {
+
+    order_created: Subscriptions,
+) -> Result<KvOperations, Error> {
 
     // Create an empty 'KvOperations' structure
     let mut kv_ops: KvOperations = Default::default();
-
     // Call a function that will push key-value operations from the deltas
-    kv::process_deltas(&mut kv_ops, deltas);
-    log::info!("{:?}",kv_ops); 
-
+    // kv::process_deltas(&mut kv_ops, deltas);
+    // log::info!("{:?}",kv_ops); 
     // Here, we could add more operations to the kv_ops
     // kv_ops.push_new(Subscription.asset_in, Subscription,1);
     // kv_ops.push_new(oe.asset_out, order_created.asset_in_address,1);
