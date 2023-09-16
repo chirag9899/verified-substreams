@@ -87,6 +87,7 @@ pub fn kv_out(
 
     // Call a function that will push key-value operations from the deltas
     kv::process_deltas(&mut kv_ops, deltas);
+    log::info!("{:?}",kv_ops); 
 
     // Here, we could add more operations to the kv_ops
     // kv_ops.push_new(Subscription.asset_in, Subscription,1);
