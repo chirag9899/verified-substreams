@@ -1,6 +1,5 @@
 mod abi;
 mod pb;
-#[path = "kv_out.rs"]
 mod kv;
 
 use hex_literal::hex;
@@ -56,14 +55,10 @@ fn map_subscriptions(pool_created:Pools) {
 #[substreams::handlers::map]
 pub fn kv_out(
     order_created: Subscriptions,
-    deltas: store::Deltas<DeltaProto<BlockMeta>>,
 ) -> Result<KvOperations, Error> {
 
     // Create an empty 'KvOperations' structure
     let mut kv_ops: KvOperations = Default::default();
-
-    // Call a function that will push key-value operations from the deltas
-    kv::process_deltas(&mut kv_ops, deltas);
 
     // Here, we could add more operations to the kv_ops
     kv_ops.push_new(assetIn, Subscription.assetIn_address);
