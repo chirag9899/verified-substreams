@@ -30,8 +30,8 @@ fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
     })
 }
 
-// #[substreams::handlers::map]
-fn map_subscriptions(
+#[substreams::handlers::map]
+fn map_trades(
     blk: eth::Block,
     pool_created: Pools,
 ) -> Result<verified::secondary::v1::Trades, substreams::errors::Error> {
@@ -39,17 +39,17 @@ fn map_subscriptions(
     let mut all_trades = Vec::new();
     for pool in pool_created.pools {
         let trades_for_pool: Vec<_> = blk
-            .events::<abi::pool::events::Trades>(&[&pool.pool_address])
+            .events::<abi::pool::events::TradeReport>(&[&pool.pool_address])
             .map(|(trade_reported, _log)| {
                 log::info!("TradeReport event seen");
 
                 Trade {
                     security_address: trade_reported.security,
-                    order_type: trade_reported.orderType,
-                    price: trade_reported.price.low_u64(),
+                    order_type: trade_reported.order_type.to_vec(),
+                    price: trade_reported.price.to_u64(),
                     currency_address: trade_reported.currency,
-                    traded_amount: trade_reported.amount.low_u64(),
-                    execution_date: trade_reported.executionDate,
+                    traded_amount: trade_reported.amount.to_u64(),
+                    execution_date: trade_reported.execution_date.to_u64(),
                 }
             })
             .collect();

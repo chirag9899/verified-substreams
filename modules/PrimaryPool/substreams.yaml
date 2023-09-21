@@ -38,7 +38,7 @@ modules:
       # Added UP
       - map: map_pools
     output:
-      type: proto:verified.primary.v1.Subscriptions
+      type: proto:verified.primary.v1.PrimaryIssues
 
   - name: kv_out
     kind: map

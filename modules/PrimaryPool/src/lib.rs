@@ -11,6 +11,7 @@ use pb::{
     verified::{
         self,
         primary::v1::{Pool, Pools, Subscription, Subscriptions},
+        // primary::v1::{Pool, Pools, Subscription, Subscriptions},
     },
 };
 use substreams::{log, store, store::DeltaProto, Hex, errors::Error};
@@ -53,7 +54,8 @@ fn map_subscriptions(
     for pool in pool_created.pools {
         log::info!("{:?}",Hex(&pool.pool_address)); 
         let subscriptions_for_pool: Vec<_> = blk
-        .events::<abi::pool::events::Subscription>(&[&pool.pool_address])
+        .events::<abi::pi::v1::Subscription>(&[&pool.pool_address])
+        // .events::<abi::pool::events::Subscription>(&[&pool.pool_address])
             .map(|(order_created, _log)| {
                 log::info!("Subscriptions event seen");
                 Subscription {
@@ -75,24 +77,11 @@ fn map_subscriptions(
     })
 }
 
-// #[substreams::handlers::map]
-pub fn kv_out(
-
-    order_created: Subscriptions,
-) -> Result<KvOperations, Error> {
-
-    // Create an empty 'KvOperations' structure
-    let mut kv_ops: KvOperations = Default::default();
-    // Call a function that will push key-value operations from the deltas
-    // kv::process_deltas(&mut kv_ops, deltas);
-    // log::info!("{:?}",kv_ops); 
-    // Here, we could add more operations to the kv_ops
-    // kv_ops.push_new(Subscription.asset_in, Subscription,1);
-    // kv_ops.push_new(oe.asset_out, order_created.asset_in_address,1);
-    // kv_ops.push_new(subscription, Subscription.subscription_amount);
-    // kv_ops.push_new(investor, Subscription.investor_address);
-    // kv_ops.push_new(price, Subscription.price);
-    // kv_ops.push_new(executionDate, Subscription.execution_date);
-
-    Ok(kv_ops)
-}
+// Ok(verified::primary::v1::Subscription {
+//     asset_in_address: all_subscriptions[0].asset_in_address.clone(),
+//     asset_out_address: all_subscriptions[0].asset_out_address.clone(),
+//     subscription_amount: all_subscriptions[0].subscription_amount,
+//     investor_address: all_subscriptions[0].investor_address.clone(),
+//     price: all_subscriptions[0].price,
+//     execution_date: all_subscriptions[0].execution_date,
+// })
