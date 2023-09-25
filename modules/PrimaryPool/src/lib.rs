@@ -18,8 +18,8 @@ use substreams::{log, store, store::DeltaProto, Hex, errors::Error};
 use substreams_ethereum::pb::eth::v2 as eth;
 use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
-// const FACTORY_CONTRACT: [u8; 20] = hex!("2081d59917ee6b58d92a19174c158354359187bc");
-const FACTORY_CONTRACT: [u8; 20] = hex!("4823be69546f9e1Ab8a87f315108c19dDC8E48b4");
+const FACTORY_CONTRACT: [u8; 20] = hex!("2081d59917ee6b58d92a19174c158354359187bc");
+// const FACTORY_CONTRACT: [u8; 20] = hex!("4823be69546f9e1Ab8a87f315108c19dDC8E48b4");
 
 substreams_ethereum::init!();
 #[substreams::handlers::map]
@@ -54,8 +54,8 @@ fn map_subscriptions(
     for pool in pool_created.pools {
         log::info!("{:?}",Hex(&pool.pool_address)); 
         let subscriptions_for_pool: Vec<_> = blk
-        .events::<abi::pi::v1::Subscription>(&[&pool.pool_address])
-        // .events::<abi::pool::events::Subscription>(&[&pool.pool_address])
+        // .events::<abi::pi::v1::Subscription>(&[&pool.pool_address])
+        .events::<abi::pool::events::Subscription>(&[&pool.pool_address])
             .map(|(order_created, _log)| {
                 log::info!("Subscriptions event seen");
                 Subscription {

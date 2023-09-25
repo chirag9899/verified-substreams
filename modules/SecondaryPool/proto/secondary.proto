@@ -16,9 +16,12 @@ message Trades {
 
 message Trade {
     bytes security_address = 1;
-    bytes order_type = 2;
-    uint64 price = 3;
-    bytes currency_address = 4;
-    uint64 traded_amount = 5;
-    uint64 execution_date = 6;
+    bytes order_ref=2;
+    bytes party=3;
+    bytes counterparty=4;
+    bytes order_type = 5;
+    uint64 price = 6;
+    bytes currency_address = 7;
+    uint64 traded_amount = 8;
+    uint64 execution_date = 9;
 }

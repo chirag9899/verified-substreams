@@ -45,6 +45,9 @@ fn map_trades(
 
                 Trade {
                     security_address: trade_reported.security,
+                    order_ref:trade_reported.order_ref.to_vec(),
+                    party:trade_reported.party,
+                    counterparty:trade_reported.counterparty,
                     order_type: trade_reported.order_type.to_vec(),
                     price: trade_reported.price.to_u64(),
                     currency_address: trade_reported.currency,
