@@ -40,6 +40,14 @@ modules:
     output:
       type: proto:verified.primary.v1.PrimaryIssues
 
+  - name: map_subscriptionsCheck
+    kind: map
+    initialBlock: 8586768
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:verified.primary.v1.PrimaryIssues
+
   - name: kv_out
     kind: map
     inputs:
