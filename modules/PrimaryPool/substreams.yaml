@@ -12,9 +12,16 @@ protobuf:
 binaries:
   default:
     type: wasm/rust-v1
-    file: ./target/wasm32-unknown-unknown/release/substreams_primary.wasm
+    file: ../../target/wasm32-unknown-unknown/release/substreams.wasm
 
 modules:
+  - name: store_block_meta_end
+    kind: store
+    updatePolicy: set
+    valueType: proto:eth.block_meta.v1.BlockMeta
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+
   - name: map_pools
     kind: map
     initialBlock: 8586768
@@ -27,13 +34,27 @@ modules:
     kind: map
     initialBlock: 8586768
     inputs:
+      - source: sf.ethereum.type.v2.Block
+      # Added UP
       - map: map_pools
     output:
-      type: proto:verified.primary.v1.Subscriptions
+      type: proto:verified.primary.v1.PrimaryIssues
+
+  - name: map_subscriptionsCheck
+    kind: map
+    initialBlock: 8586768
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:verified.primary.v1.PrimaryIssues
 
   - name: kv_out
     kind: map
     inputs:
-      - map: map_subscriptions
+      - store: store_block_meta_end
+        mode: deltas
+      # # - map: map_subscriptions
+      # - map: map_subscriptions
     output:
       type: proto:sf.substreams.sink.kv.v1.KVOperations
+

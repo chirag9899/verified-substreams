@@ -12,9 +12,17 @@ protobuf:
 binaries:
   default:
     type: wasm/rust-v1
-    file: ./target/wasm32-unknown-unknown/release/substreams_secondary.wasm
+    file: ../../target/wasm32-unknown-unknown/release/substreams.wasm
 
 modules:
+  - name: store_block_meta_end
+    kind: store
+    updatePolicy: set
+    initialBlock: 8586768
+    valueType: proto:eth.block_meta.v1.BlockMeta
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+
   - name: map_pools
     kind: map
     initialBlock: 8586768
@@ -27,6 +35,7 @@ modules:
     kind: map
     initialBlock: 8586768
     inputs:
+      - source: sf.ethereum.type.v2.Block
       - map: map_pools
     output:
       type: proto:verified.secondary.v1.Trades
