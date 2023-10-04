@@ -5,7 +5,6 @@ This is a Rust module designed for Substreams that focuses on handling primary i
 ## Table of Contents
 
 - [Substreams Primary Module](#substreams-primary-module)
-  - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Installation](#installation)
   - [Usage](#usage)
@@ -26,21 +25,16 @@ Before using the Substreams Primary Module, ensure that you have Rust and substr
 Official Rust installation guide: [Rust Installation](https://www.rust-lang.org/tools/install)
 Official Substreams installation guide: [Substreams](https://substreams.streamingfast.io/getting-started/installing-the-cli)
 
-After setting up Rust and Substreams, you can build and run this module as part of the overall Substreams project. Please refer to the [Verified Substreams README](../README.md) for installation and usage instructions for the entire project.
+After setting up Rust and Substreams, you can build and run this module.
 
 ## Usage
 
 To use the Substreams Primary Module, follow these steps:
 
-1. **Generate Rust Code**: Navigate to the module folder and execute the following command to generate Rust code for connecting to protobuf:
-
+1. **Build the Rust Code**: Run the following command within the module folder to build the Rust code:
    ```bash
-   substreams protogen substreams.yaml --exclude-paths="sf/substreams,google"
-
-2. **Build the Rust Code**: Run the following command within the module folder to build the Rust code:
-   ```bash
-   substreams run -e <Protocol-Proto model> substreams.yaml <FUNCTION_NAME> --start-block 9561663 --stop-block +20
-3. Execute the Module: To execute the module, run the following command in the module folder:
+    cargo build --target wasm32-unknown-unknown --release
+2. Execute the Module: To execute the module, run the following command in the module folder:
    ```bash
    substreams run -e <Protocol-Proto model> substreams.yaml <FUNCTION_NAME> --start-block 9561663 --stop-block +20
 Replace <Protocol-Proto model> with the desired protocol model. Supported protocol-Proto models are listed in the Verified Substreams README.
@@ -50,7 +44,6 @@ Replace <Protocol-Proto model> with the desired protocol model. Supported protoc
 *Description:* This function detects poolcreated event from blockchain and returns information about them.
 #### map_subscriptions
 Description: This function detects subscriptions events under the address of poolcreated event at a perticular block and maps them to the appropriate data structures.
-
 #### kv_out
 Description: This function generates key-value operations based on the provided subscription data for the client interface.
 
