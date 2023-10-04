@@ -1,25 +1,18 @@
 mod abi;
 mod pb;
-// #[path = "kv_out.rs"]
-// mod kv;
+#[path = "kv_out.rs"]
+mod kv;
 
-// use std::error::Error;
 use hex_literal::hex;
-use pb::{
-    block_meta::primary::v1::BlockMeta,
-    verified::{
+use pb::verified::{
         self,
         primary::v1::{Pool, Pools, Subscription, Subscriptions},
-        // primary::v1::{Pool, Pools, Subscription, Subscriptions},
-    },
-};
+    };
 use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
-use substreams::{errors::Error, log, store, store::DeltaProto, Hex};
+use substreams::{errors::Error, log, Hex};
 use substreams_ethereum::pb::eth::v2 as eth;
-// use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
-// const FACTORY_CONTRACT: [u8; 20] = hex!("2081d59917ee6b58d92a19174c158354359187bc");
 const FACTORY_CONTRACT: [u8; 20] = hex!("4823be69546f9e1Ab8a87f315108c19dDC8E48b4");
 substreams_ethereum::init!();
 #[substreams::handlers::map]
@@ -34,32 +27,6 @@ fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
 
                 Pool {
                     pool_address: (pool_created.pool),
-                    // pool_address: Hex(pool_created.pool).to_string(),
-                }
-            })
-            .collect(),
-    })
-}
-
-#[substreams::handlers::map]
-fn map_subscriptionsCheck(blk: eth::Block) -> Result<Subscriptions, substreams::errors::Error> {
-    log::info!("Detecting Subscriptions from Primary pools");
-
-    Ok(Subscriptions {
-        subscriptions: blk
-            .events::<abi::pool::events::Subscription>(&[&FACTORY_CONTRACT])
-            .map(|(subscription, _log)| {
-                log::info!("Subscription event seen");
-
-                Subscription {
-                    // Map the fields from the detected event to the Subscription struct
-                    // For example:
-                    asset_in_address: subscription.asset_in,
-                    asset_out_address: subscription.asset_out,
-                    subscription_amount: subscription.subscription.to_u64(),
-                    investor_address: subscription.investor,
-                    price: subscription.price.to_u64(),
-                    execution_date: subscription.execution_date.to_u64(),
                 }
             })
             .collect(),
@@ -102,17 +69,17 @@ fn map_subscriptions(
 }
 
 #[substreams::handlers::map]
-pub fn kv_out(order_created: Subscriptions) -> Result<KvOperations, Error> {
+pub fn kv_out(order_created: Subscription) -> Result<KvOperations, Error> {
     // Create an empty 'KvOperations' structure
     let mut kv_ops: KvOperations = Default::default();
 
     // Here, we could add more operations to the kv_ops
-    // kv_ops.push_new(assetIn, Subscription.assetIn_address);
-    // kv_ops.push_new(assetOut, Subscription.assetOut_address);
-    // kv_ops.push_new(subscription, Subscription.subscription_amount);
-    // kv_ops.push_new(investor, Subscription.investor_address);
-    // kv_ops.push_new(price, Subscription.price);
-    // kv_ops.push_new(executionDate, Subscription.execution_date);
+    kv_ops.push_new("assetInAddress", order_created.asset_in_address,1);
+    kv_ops.push_new("assetOutAddress", order_created.asset_out_address,2);
+    kv_ops.push_new("subscriptionAmount", order_created.subscription_amount.to_be_bytes(),3);
+    kv_ops.push_new("investorAddress", order_created.investor_address,4);
+    kv_ops.push_new("price", order_created.price.to_be_bytes(),5);
+    kv_ops.push_new("executionDate", order_created.execution_date.to_be_bytes(),6);
 
     Ok(kv_ops)
 }

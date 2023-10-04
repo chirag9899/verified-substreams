@@ -62,17 +62,20 @@ fn map_trades(
 }
 
 // #[substreams::handlers::map]
-pub fn kv_out(trade_reported: Trades) -> Result<KvOperations, Error> {
+pub fn kv_out(trade_reported: Trade) -> Result<KvOperations, Error> {
     // Create an empty 'KvOperations' structure
     let mut kv_ops: KvOperations = Default::default();
 
     // Here, we could add more operations to the kv_ops
-    // kv_ops.push_new(security, Trades.security_address);
-    // kv_ops.push_new(orderType, Trades.order_type);
-    // kv_ops.push_new(price, Trades.price);
-    // kv_ops.push_new(currency, Trades.currency_address);
-    // kv_ops.push_new(amount, Trades.traded_amount);
-    // kv_ops.push_new(executionDate, Trades.execution_date);
+    kv_ops.push_new("security", trade_reported.security_address,1);
+    kv_ops.push_new("order_ref", trade_reported.order_ref,2);
+    kv_ops.push_new("party", trade_reported.party,3);
+    kv_ops.push_new("counterparty", trade_reported.counterparty,4);
+    kv_ops.push_new("order_type", trade_reported.order_type,5);
+    kv_ops.push_new("price", trade_reported.price.to_be_bytes(),6);
+    kv_ops.push_new("currency_address", trade_reported.currency_address,7);
+    kv_ops.push_new("traded_amount", trade_reported.traded_amount.to_be_bytes(),8);
+    kv_ops.push_new("execution_date", trade_reported.execution_date.to_be_bytes(),9);
 
     Ok(kv_ops)
 }
