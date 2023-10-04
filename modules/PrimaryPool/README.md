@@ -18,7 +18,7 @@ This is a Rust module designed for Substreams that focuses on handling primary i
 
 ## Introduction
 
-The Substreams Primary Module is a Rust module developed to detect pools, subscriptions events. This module is a crucial part of the Substreams project, which aims to provide high-performance blockchain indexing technology.
+The Substreams Primary Module is a Rust module developed to detect pools, subscriptions events for secondary issue pools. This module is a crucial part of the Substreams project, which aims to provide high-performance blockchain indexing technology.
 
 ## Installation
 
