@@ -61,14 +61,26 @@ function App() {
                 try {
                     const subscription = Subscription.fromBinary(response.value);
                     output = JSON.stringify(subscription, (key, value) => {
-                        if (key === "hash") {
-                            return "0x" + bufferToHex(subscription.hash);
+                        if (key === "assetInAddress") {
+                            return "0x" + bufferToHex(subscription.assetInAddress);
                         }
-                        if (key === "parentHash") {
-                            return "0x" + bufferToHex(subscription.parentHash);
+                        if (key === "assetOutAddress") {
+                            return "0x" + bufferToHex(subscription.assetOutAddress);
+                        }
+                        if (key === "investorAddress") {
+                            return "0x" + bufferToHex(subscription.investorAddress);
+                        }
+                        if (key === "price") {
+                            return "0x" + bigintToHex(subscription.price);
+                        }
+                        if (key === "subscriptionAmount") {
+                            return "0x" + bigintToHex(subscription.subscriptionAmount);
+                        }
+                        if (key === "executionDate") {
+                            return "0x" + bigintToHex(subscription.executionDate);
                         }
                         return value;
-                    }, 2);
+                    }, 6);
                 } catch (e) {
                     output = "0x" + bufferToHex(response.value);
                 }
@@ -113,5 +125,21 @@ function bufferToHex(buffer: Uint8Array): string {
     (new Uint8Array(buffer)).forEach((v) => { s += h[v >> 4] + h[v & 15]; });
     return s;
 }
+function bigintToHex(bigintValue: bigint): string {
+    if (typeof bigintValue !== 'bigint') {
+        throw new Error('Input must be a bigint.');
+    }
 
+    const h = '0123456789abcdef';
+    let s = '';
+    let value = bigintValue;
+
+    while (value > 0n) {
+        const digit = Number(value & 15n);
+        s = h[digit] + s;
+        value >>= 4n;
+    }
+
+    return s;
+}
 export default App
