@@ -5,7 +5,7 @@ use substreams::store::{self, DeltaProto};
 use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 // use substreams_sink_kv::pb::kv::KvOperations;
 
-use crate::pb::block_meta::primary::v1::BlockMeta;
+use crate::pb::eth::block_meta::v1::BlockMeta;
 
 pub fn process_deltas(ops: &mut KvOperations, deltas: store::Deltas<DeltaProto<BlockMeta>>) {
     use substreams::pb::substreams::store_delta::Operation;

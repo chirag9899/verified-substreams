@@ -6,6 +6,7 @@ package:
 protobuf:
   files:
     - secondary.proto
+    - blockmeta.proto
   importPaths:
     - ./proto
 

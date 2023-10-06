@@ -5,6 +5,7 @@ This is a Rust module designed for Substreams that focuses on handling secondary
 ## Table of Contents
 
 - [Substreams Secondary Module](#substreams-secondary-module)
+  - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Installation](#installation)
   - [Usage](#usage)
