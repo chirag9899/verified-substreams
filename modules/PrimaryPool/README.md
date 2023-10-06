@@ -60,4 +60,4 @@ Description: This function generates key-value operations based on the provided 
 
 
 ## License
-[Apache 2.0](https://github.com/streamingfast/substreams/blob/develop/LICENSE/README.md).
+[BUSL-1.1](https://github.com/verified-network/verified-substreams/blob/master/LICENSE).
