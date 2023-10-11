@@ -40,4 +40,4 @@ To run the client interface on your local system, please refer to [substreams-si
 
 ## License
 
-[Apache 2.0](https://github.com/streamingfast/substreams/blob/develop/LICENSE/README.md).
+[BUSL-1.1](https://github.com/verified-network/verified-substreams/blob/master/LICENSE).
