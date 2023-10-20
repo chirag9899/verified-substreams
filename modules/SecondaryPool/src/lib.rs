@@ -2,13 +2,18 @@ mod abi;
 mod pb;
 
 use hex_literal::hex;
-use pb::verified::secondary::v1::{Pool, Pools, Trade, Trades};
-use substreams::{errors::Error, log, Hex};
-use substreams_ethereum::pb::eth::v2 as eth;
-// use substreams_sink_kv::pb::kv::KvOperations;
+use pb::verified::secondary::v1::{Pool, Pools, Trade};
+use substreams::{
+    errors::Error,
+    log,
+    // pb::substreams::module::input::store,
+    store::{StoreGet, StoreGetProto, StoreNew, StoreSet, StoreSetProto},
+    Hex,
+};
+use substreams_ethereum::{pb::eth::v2 as eth, Event};
 use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
-use crate::pb::verified;
+
 const FACTORY_CONTRACT: [u8; 20] = hex!("e3e79e4106327e6eAeFBD03C1fD3A4A531c59b10");
 
 substreams_ethereum::init!();
@@ -30,36 +35,92 @@ fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
     })
 }
 
-#[substreams::handlers::map]
-fn map_trades(
-    blk: eth::Block,
-    pool_created: Pools,
-) -> Result<verified::secondary::v1::Trades, substreams::errors::Error> {
-    log::info!("Detecting trades from Secondary pools");
-    let mut all_trades = Vec::new();
-    for pool in pool_created.pools {
-        let trades_for_pool: Vec<_> = blk
-            .events::<abi::pool::events::TradeReport>(&[&pool.pool_address])
-            .map(|(trade_reported, _log)| {
-                log::info!("TradeReport event seen");
-
-                Trade {
-                    security_address: trade_reported.security,
-                    order_ref:trade_reported.order_ref.to_vec(),
-                    party:trade_reported.party,
-                    counterparty:trade_reported.counterparty,
-                    order_type: trade_reported.order_type.to_vec(),
-                    price: trade_reported.price.to_u64(),
-                    currency_address: trade_reported.currency,
-                    traded_amount: trade_reported.amount.to_u64(),
-                    execution_date: trade_reported.execution_date.to_u64(),
-                }
-            })
-            .collect();
-        all_trades.extend(trades_for_pool);
+#[substreams::handlers::store]
+pub fn store_pools_created(pools: Pools, store: StoreSetProto<Pool>) {
+    for pool in pools.pools {
+        let pool_address = &pool.pool_address;
+        // store.set(1, format!("pool:"), &pool);
+        store.set(1, &String::from_utf8_lossy(&pool_address), &pool);
     }
-    Ok(verified::secondary::v1::Trades { trades: all_trades })
 }
+
+#[substreams::handlers::map]
+fn map_subscriptions(
+    blk: eth::Block,
+    pools_store: StoreGetProto<Pool>,
+) -> Result<Trade, Error> {
+    log::info!("Detecting subscriptions from Primary module");
+
+    let mut pool_events = Trade::default();
+    for trx in blk.transactions() {
+        for (log, call_view) in trx.logs_with_calls() {
+            let pool_address = &Hex(&log.address).to_string();
+
+            let pool_opt = pools_store.get_last(&pool_address);
+            let pool = match pools_store.get_last(&pool_address) {
+                Some(pool) =>{
+                    log::info!("{:?}",pool);
+                    pool
+                } ,
+                None => {
+                    continue;
+                }
+            };
+            if pool_opt.is_none() {
+                continue;
+            }
+            if let Some(trade) = abi::pool::events::TradeReport::match_and_decode(log) {
+                log::info!("Trade {:?}", trade);
+                pool_events.security_address=trade.security;
+                pool_events.order_ref=trade.order_ref.to_vec();
+                pool_events.party=trade.party;
+                pool_events.counterparty=trade.counterparty;
+                pool_events.order_type=trade.order_type.to_vec();
+                pool_events.price=trade.price.to_u64();
+                pool_events.currency_address=trade.currency;
+                pool_events.traded_amount=trade.amount.to_u64();
+                pool_events.execution_date=trade.execution_date.to_u64();
+
+            }
+            log::info!("{:?}", pool_events);
+            // use the pool information from the store
+        }
+    }
+
+    Ok(pool_events)
+}
+
+
+// #[substreams::handlers::map]
+// fn map_trades(
+//     blk: eth::Block,
+//     pool_created: Pools,
+// ) -> Result<verified::secondary::v1::Trades, substreams::errors::Error> {
+//     log::info!("Detecting trades from Secondary pools");
+//     let mut all_trades = Vec::new();
+//     for pool in pool_created.pools {
+//         let trades_for_pool: Vec<_> = blk
+//             .events::<abi::pool::events::TradeReport>(&[&pool.pool_address])
+//             .map(|(trade_reported, _log)| {
+//                 log::info!("TradeReport event seen");
+
+//                 Trade {
+//                     security_address: trade_reported.security,
+//                     order_ref:trade_reported.order_ref.to_vec(),
+//                     party:trade_reported.party,
+//                     counterparty:trade_reported.counterparty,
+//                     order_type: trade_reported.order_type.to_vec(),
+//                     price: trade_reported.price.to_u64(),
+//                     currency_address: trade_reported.currency,
+//                     traded_amount: trade_reported.amount.to_u64(),
+//                     execution_date: trade_reported.execution_date.to_u64(),
+//                 }
+//             })
+//             .collect();
+//         all_trades.extend(trades_for_pool);
+//     }
+//     Ok(verified::secondary::v1::Trades { trades: all_trades })
+// }
 
 // #[substreams::handlers::map]
 pub fn kv_out(trade_reported: Trade) -> Result<KvOperations, Error> {
