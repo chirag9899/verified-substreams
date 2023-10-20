@@ -32,19 +32,25 @@ modules:
 
   - name: map_pools
     kind: map
-    initialBlock: 8586768
+    initialBlock: 9561662
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:verified.primary.v1.Pools
 
+  - name: store_pools_created
+    kind: store
+    updatePolicy: set
+    valueType: proto:verified.primary.v1.Pools
+    inputs:
+      - map: map_pools
+
   - name: map_subscriptions
     kind: map
-    initialBlock: 8586768
+    initialBlock: 9561662
     inputs:
       - source: sf.ethereum.type.v2.Block
-      # Added UP
-      - map: map_pools
+      - store: store_pools_created
     output:
       type: proto:verified.primary.v1.PrimaryIssues
 
