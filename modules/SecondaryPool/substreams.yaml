@@ -16,6 +16,13 @@ binaries:
     file: ../../target/wasm32-unknown-unknown/release/substreams.wasm
 
 modules:
+  - name: store_block_meta_start
+    kind: store
+    updatePolicy: set_if_not_exists
+    valueType: proto:verified.secondary.v1.Pools
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+
   - name: store_block_meta_end
     kind: store
     updatePolicy: set
@@ -32,18 +39,26 @@ modules:
     output:
       type: proto:verified.secondary.v1.Pools
 
+  - name: store_pools_created
+    kind: store
+    updatePolicy: set
+    valueType: proto:verified.secondary.v1.Pools
+    inputs:
+      - map: map_pools
+
   - name: map_trades
     kind: map
     initialBlock: 8586768
     inputs:
       - source: sf.ethereum.type.v2.Block
-      - map: map_pools
+      - store: store_pools_created
     output:
       type: proto:verified.secondary.v1.Trades
 
   - name: kv_out
     kind: map
     inputs:
-      - map: map_trades
+      - store: store_block_meta_end
+        mode: deltas
     output:
       type: proto:sf.substreams.sink.kv.v1.KVOperations
