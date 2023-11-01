@@ -20,9 +20,9 @@ use substreams::{
 };
 use substreams_ethereum::{pb::eth::v2 as eth, Event};
 
-use crate::pb::verified::primary;
 
 const FACTORY_CONTRACT: [u8; 20] = hex!("4823be69546f9e1Ab8a87f315108c19dDC8E48b4");
+// const FACTORY_CONTRACT: [u8; 20] = hex!("2081d59917ee6B58D92A19174c158354359187BC");
 
 substreams_ethereum::init!();
 
@@ -30,7 +30,14 @@ substreams_ethereum::init!();
 #[substreams::handlers::map]
 fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
     log::info!("Detecting Pools from Primary pools");
-
+    for trx in blk.transactions() {
+        // log::info!("checking on buddy---{:#?}",blk.logs())
+        for (log, call_view) in trx.logs_with_calls() {
+            let pool_address = &Hex(&log.address).to_string();
+            log::info!("checking on poolAddress---{:#?}",(&log.topics));
+            // log::info!("checking on log index---{:#?}", (&log.data));
+        };
+    };
     Ok(Pools {
         pools: blk
             .events::<abi::factory::events::PoolCreated>(&[&FACTORY_CONTRACT])
@@ -54,6 +61,7 @@ pub fn store_pools_created(pools: Pools, store: StoreSetProto<Pool>) {
     }
 }
 
+
 #[substreams::handlers::map]
 fn map_subscriptions(
     blk: eth::Block,
@@ -64,9 +72,10 @@ fn map_subscriptions(
     for trx in blk.transactions() {
         for (log, call_view) in trx.logs_with_calls() {
             let pool_address = &Hex(&log.address).to_string();
-
+            // log::info!("checking on poolAddress---{:#?}",(&log.topics));
             let pool_opt = pools_store.get_last(&pool_address);
-            let pool = match pools_store.get_last(&pool_address) {
+            let poolo = match pools_store.get_last(&pool_address) {
+
                 Some(pool) =>{
                     log::info!("{:?}",pool);
                     pool
@@ -75,6 +84,7 @@ fn map_subscriptions(
                     continue;
                 }
             };
+            log::info!("checking on pool_opt---{:#?}", poolo);
             if pool_opt.is_none() {
                 continue;
             }
