@@ -13,7 +13,6 @@ use substreams::{
 use substreams_ethereum::{pb::eth::v2 as eth, Event};
 use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
-
 const FACTORY_CONTRACT: [u8; 20] = hex!("e3e79e4106327e6eAeFBD03C1fD3A4A531c59b10");
 
 substreams_ethereum::init!();
@@ -37,59 +36,44 @@ fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
 
 #[substreams::handlers::store]
 pub fn store_pools_created(pools: Pools, store: StoreSetProto<Pool>) {
+    let mut ordinal = 0;
     for pool in pools.pools {
+        ordinal = ordinal + 1;
         let pool_address = &pool.pool_address;
-        // store.set(1, format!("pool:"), &pool);
-        store.set(1, &String::from_utf8_lossy(&pool_address), &pool);
+        store.set(ordinal, &Hex::encode(pool_address), &pool);
     }
 }
 
 #[substreams::handlers::map]
-fn map_subscriptions(
-    blk: eth::Block,
-    pools_store: StoreGetProto<Pool>,
-) -> Result<Trade, Error> {
-    log::info!("Detecting subscriptions from Primary module");
-
+fn map_trades(blk: eth::Block, pools_store: StoreGetProto<Pool>) -> Result<Trade, Error> {
+    log::info!("Detecting subscriptions from Secondry module");
     let mut pool_events = Trade::default();
     for trx in blk.transactions() {
         for (log, call_view) in trx.logs_with_calls() {
             let pool_address = &Hex(&log.address).to_string();
 
             let pool_opt = pools_store.get_last(&pool_address);
-            let pool = match pools_store.get_last(&pool_address) {
-                Some(pool) =>{
-                    log::info!("{:?}",pool);
-                    pool
-                } ,
-                None => {
-                    continue;
-                }
-            };
             if pool_opt.is_none() {
                 continue;
             }
             if let Some(trade) = abi::pool::events::TradeReport::match_and_decode(log) {
-                log::info!("Trade {:?}", trade);
-                pool_events.security_address=trade.security;
-                pool_events.order_ref=trade.order_ref.to_vec();
-                pool_events.party=trade.party;
-                pool_events.counterparty=trade.counterparty;
-                pool_events.order_type=trade.order_type.to_vec();
-                pool_events.price=trade.price.to_u64();
-                pool_events.currency_address=trade.currency;
-                pool_events.traded_amount=trade.amount.to_u64();
-                pool_events.execution_date=trade.execution_date.to_u64();
-
+                log::info!("TradeReport event seen");
+                pool_events.security_address = trade.security;
+                pool_events.order_ref = trade.order_ref.to_vec();
+                pool_events.party = trade.party;
+                pool_events.counterparty = trade.counterparty;
+                pool_events.order_type = trade.order_type.to_vec();
+                pool_events.price = trade.price.to_u64();
+                pool_events.currency_address = trade.currency;
+                pool_events.traded_amount = trade.amount.to_u64();
+                pool_events.execution_date = trade.execution_date.to_u64();
             }
-            log::info!("{:?}", pool_events);
             // use the pool information from the store
         }
     }
 
     Ok(pool_events)
 }
-
 
 // #[substreams::handlers::map]
 // fn map_trades(
@@ -128,15 +112,23 @@ pub fn kv_out(trade_reported: Trade) -> Result<KvOperations, Error> {
     let mut kv_ops: KvOperations = Default::default();
 
     // Here, we could add more operations to the kv_ops
-    kv_ops.push_new("security", trade_reported.security_address,1);
-    kv_ops.push_new("order_ref", trade_reported.order_ref,2);
-    kv_ops.push_new("party", trade_reported.party,3);
-    kv_ops.push_new("counterparty", trade_reported.counterparty,4);
-    kv_ops.push_new("order_type", trade_reported.order_type,5);
-    kv_ops.push_new("price", trade_reported.price.to_be_bytes(),6);
-    kv_ops.push_new("currency_address", trade_reported.currency_address,7);
-    kv_ops.push_new("traded_amount", trade_reported.traded_amount.to_be_bytes(),8);
-    kv_ops.push_new("execution_date", trade_reported.execution_date.to_be_bytes(),9);
+    kv_ops.push_new("security", trade_reported.security_address, 1);
+    kv_ops.push_new("order_ref", trade_reported.order_ref, 2);
+    kv_ops.push_new("party", trade_reported.party, 3);
+    kv_ops.push_new("counterparty", trade_reported.counterparty, 4);
+    kv_ops.push_new("order_type", trade_reported.order_type, 5);
+    kv_ops.push_new("price", trade_reported.price.to_be_bytes(), 6);
+    kv_ops.push_new("currency_address", trade_reported.currency_address, 7);
+    kv_ops.push_new(
+        "traded_amount",
+        trade_reported.traded_amount.to_be_bytes(),
+        8,
+    );
+    kv_ops.push_new(
+        "execution_date",
+        trade_reported.execution_date.to_be_bytes(),
+        9,
+    );
 
     Ok(kv_ops)
 }
