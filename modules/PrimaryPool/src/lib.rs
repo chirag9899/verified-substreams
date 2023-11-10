@@ -5,8 +5,7 @@ mod pb;
 
 use hex_literal::hex;
 
-use pb::verified::primary::v1::{Pool, Pools, Subscription,Subscriptions};
-use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
+use pb::verified::primary::v1::{Pool, Pools, Subscription, Subscriptions};
 use substreams::store::{self, DeltaProto};
 use substreams::{
     errors::Error,
@@ -16,6 +15,7 @@ use substreams::{
     Hex,
 };
 use substreams_ethereum::{pb::eth::v2 as eth, Event};
+use substreams_sink_kv::pb::sf::substreams::sink::kv::v1::KvOperations;
 
 const FACTORY_CONTRACT: [u8; 20] = hex!("4823be69546f9e1Ab8a87f315108c19dDC8E48b4");
 // const FACTORY_CONTRACT: [u8; 20] = hex!("2081d59917ee6B58D92A19174c158354359187BC");
@@ -25,14 +25,6 @@ substreams_ethereum::init!();
 #[substreams::handlers::map]
 fn map_pools(blk: eth::Block) -> Result<Pools, substreams::errors::Error> {
     log::info!("Detecting Pools from Primary pools");
-    // for trx in blk.transactions() {
-    //     // log::info!("checking on buddy---{:#?}",blk.logs())
-    //     for (log, call_view) in trx.logs_with_calls() {
-    //         let pool_address = &Hex(&log.address).to_string();
-    //         // log::info!("checking on poolAddress---{:#?}",(&log.topics));
-    //         // log::info!("checking on log index---{:#?}", (&log.data));
-    //     };
-    // };
     Ok(Pools {
         pools: blk
             .events::<abi::factory::events::PoolCreated>(&[&FACTORY_CONTRACT])
@@ -90,8 +82,24 @@ fn map_subscriptions(
     Ok(pool_events)
 }
 
+#[substreams::handlers::store]
+pub fn store_subscription_created(subscriptions: Subscription, store: StoreSetProto<Subscription>) {
+    let ordinal = 1;
+    store.set(ordinal, &Hex::encode("s"), &subscriptions);
+}
+
 #[substreams::handlers::map]
-pub fn kv_out(deltas: store::Deltas<DeltaProto<Pool>>) -> Result<KvOperations, Error> {
+fn map_subscriptions_check(
+    blk: eth::Block,
+    pools_store: StoreGetProto<Subscription>,
+) -> Result<Subscription, Error> {
+    log::info!("Detecting subscriptions from Primary module");
+    let mut pool_events = Subscription::default();
+
+    Ok(pool_events)
+}
+#[substreams::handlers::map]
+pub fn kv_out(deltas: store::Deltas<DeltaProto<Subscription>>) -> Result<KvOperations, Error> {
     // Create an empty 'KvOperations' structure
     let mut kv_ops: KvOperations = Default::default();
     kv::process_deltas(&mut kv_ops, deltas);

@@ -76,37 +76,6 @@ fn map_trades(blk: eth::Block, pools_store: StoreGetProto<Pool>) -> Result<Trade
 }
 
 // #[substreams::handlers::map]
-// fn map_trades(
-//     blk: eth::Block,
-//     pool_created: Pools,
-// ) -> Result<verified::secondary::v1::Trades, substreams::errors::Error> {
-//     log::info!("Detecting trades from Secondary pools");
-//     let mut all_trades = Vec::new();
-//     for pool in pool_created.pools {
-//         let trades_for_pool: Vec<_> = blk
-//             .events::<abi::pool::events::TradeReport>(&[&pool.pool_address])
-//             .map(|(trade_reported, _log)| {
-//                 log::info!("TradeReport event seen");
-
-//                 Trade {
-//                     security_address: trade_reported.security,
-//                     order_ref:trade_reported.order_ref.to_vec(),
-//                     party:trade_reported.party,
-//                     counterparty:trade_reported.counterparty,
-//                     order_type: trade_reported.order_type.to_vec(),
-//                     price: trade_reported.price.to_u64(),
-//                     currency_address: trade_reported.currency,
-//                     traded_amount: trade_reported.amount.to_u64(),
-//                     execution_date: trade_reported.execution_date.to_u64(),
-//                 }
-//             })
-//             .collect();
-//         all_trades.extend(trades_for_pool);
-//     }
-//     Ok(verified::secondary::v1::Trades { trades: all_trades })
-// }
-
-// #[substreams::handlers::map]
 pub fn kv_out(trade_reported: Trade) -> Result<KvOperations, Error> {
     // Create an empty 'KvOperations' structure
     let mut kv_ops: KvOperations = Default::default();
