@@ -32,19 +32,25 @@ After setting up Rust and Substreams, you can build and run this module.
 
 To use the Substreams Primary Module, follow these steps:
 
-1. **Build the Rust Code**: Run the following command within the module folder to build the Rust code:
+1. **Generate Rust Code**: Navigate to the module folder and execute the following command to generate Rust code for connecting to protobuf:
+   ```bash
+   substreams protogen substreams.yaml --exclude-paths="sf/substreams,google"
+
+2. **Build the Rust Code**: Run the following command within the module folder to build the Rust code:
    ```bash
    cargo build --target wasm32-unknown-unknown --release3.
    
-2. Execute the Module: To execute the module, run the following command in the module folder:
+3. **Execute the Module**: To execute the module, run the following command in the module folder:
    ```bash
    substreams run -e <Protocol-Proto model> substreams.yaml <FUNCTION_NAME> --start-block 9561663 --stop-block +20
 
 Replace <Protocol-Proto model> with the desired protocol model. Supported protocol-Proto models are listed in the [Verified Substreams README](../../README.md).
 
 ## Functions
+
 #### map_pools
 *Description:* This function detects poolcreated event from blockchain and returns information about them.
+
 #### map_trades
 Description: This function detects Trades events under the address of poolcreated event at a perticular block and maps them to the appropriate data structures.
 

@@ -13,16 +13,14 @@ For comprehensive documentation on installing, running, and working with Substre
 ## Streaming Orders and Trade Data from the Verified Network
 
 This repository contains modules that stream subscription/pricing data from primary issue pools and trade/pricing data from secondary issue pools. There are two modules available: PrimaryPool and SecondaryPool. Substreams stores the data in key/value stores, making it accessible via gRPC. 
-More details on modules can be found [Primary](./modules/PrimaryPool/) and [Secondry](./modules/SecondaryPool/)
+More details on modules can be found [Primary](./modules/PrimaryPool/) and [Secondary](./modules/SecondaryPool/)
 More details on client interfaces can be found [here](https://github.com/streamingfast/substreams-sink-kv/tree/develop/examples/generic-service) along with an illustrative example.
 
 Verified Substreams support Ethereum endpoints for Mainnet, Polygon, BNB (for production), and Goerli (for testing).
 
-
 *Ensure you are in the correct directory before running these commands.*
 
 To generate Rust code for connecting to protobuf, navigate to the module folder and execute the following command:
-
 ```substreams protogen substreams.yaml --exclude-paths="sf/substreams,google"```
 
 To build the Rust code, run the following command within the module folder:
@@ -30,6 +28,7 @@ To build the Rust code, run the following command within the module folder:
 
 To execute the modules, execute the following command in the module folder:
 ```substreams run -e <Protocol-Proto model> substreams.yaml <FUNCTION_NAME> --start-block 9561663 --stop-block +20```
+
 ##### Replace <Protocol-Proto model> with the desired protocol model. Supported protocol-Proto models are listed below.
 1. Ethereum Mainnet: ```mainnet.eth.streamingfast.io:443```
 2. Ethereum Görli: ```goerli.eth.streamingfast.io:443```
